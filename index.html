@@ -1,82 +1,57 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <!-- ================= BASIC META ================= -->
+  <!-- ================= BASIC ================= -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>Instapay Fees Calculator Egypt | InstaFees</title>
 
   <meta name="description"
-        content="Instapay fees calculator for Egypt. Calculate Instapay transfer fees, amount to send, limits per transfer, daily and monthly Instapay limits. Arabic & English supported." />
+        content="Instapay fees calculator Egypt. Enter the amount you want to receive and get the exact amount to send after Instapay fees with limits and warnings." />
 
   <meta name="keywords"
-        content="instapay fees, instapay fees calculator, instapay egypt fees, instapay transfer fees, instapay limits, instapay calculator egypt, رسوم انستاباي, حاسبة انستاباي" />
+        content="instapay fees, instapay fees calculator, instapay egypt, instapay transfer fees, instapay limits, رسوم انستاباي, حاسبة انستاباي" />
 
   <meta name="author" content="Hamahmi" />
   <meta name="robots" content="index, follow" />
 
-  <!-- ================= CANONICAL ================= -->
   <link rel="canonical" href="https://hamahmi.github.io/InstaFees/" />
 
-  <!-- ================= OPEN GRAPH ================= -->
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Instapay Fees Calculator Egypt | InstaFees" />
   <meta property="og:description"
-        content="Calculate Instapay fees and exact amount to send including transfer, daily and monthly limits." />
+        content="Calculate how much to send on Instapay so the exact amount reaches the receiver." />
   <meta property="og:url" content="https://hamahmi.github.io/InstaFees/" />
-  <meta property="og:image" content="https://hamahmi.github.io/InstaFees/og.png" />
-
-  <!-- ================= TWITTER ================= -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Instapay Fees Calculator Egypt" />
-  <meta name="twitter:description"
-        content="Smart Instapay fees calculator with limits and transfer splitting." />
-  <meta name="twitter:image" content="https://hamahmi.github.io/InstaFees/og.png" />
-
-  <!-- ================= SCHEMA ================= -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Instapay Fees Calculator",
-    "url": "https://hamahmi.github.io/InstaFees/",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "All",
-    "description": "Instapay fees calculator for Egypt with transfer limits, daily and monthly warnings.",
-    "inLanguage": ["ar", "en"]
-  }
-  </script>
 
   <!-- ================= STYLES ================= -->
   <style>
     :root {
-      --bg: #f5f5f5;
-      --card: #ffffff;
-      --text: #111111;
-      --accent: #2563eb;
-      --border: #dddddd;
-      --danger: #dc2626;
-      --warn: #f59e0b;
-      --toast: #111111;
+      --bg:#f5f5f5;
+      --card:#ffffff;
+      --text:#111111;
+      --accent:#2563eb;
+      --border:#dddddd;
+      --danger:#dc2626;
+      --warn:#f59e0b;
+      --toast:#111111;
     }
 
     body.dark {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --text: #e5e7eb;
-      --accent: #60a5fa;
-      --border: #334155;
-      --toast: #000000;
+      --bg:#0f172a;
+      --card:#1e293b;
+      --text:#e5e7eb;
+      --accent:#60a5fa;
+      --border:#334155;
+      --toast:#000000;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
     }
@@ -107,7 +82,7 @@
 
     button {
       background: var(--accent);
-      color: #ffffff;
+      color: #fff;
       border: none;
       padding: 8px 12px;
       border-radius: 6px;
@@ -143,17 +118,18 @@
       font-size: 1rem;
     }
 
+    .hint {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+
     .result p {
       margin: 6px 0;
     }
 
-    .warning {
-      color: var(--warn);
-    }
-
-    .error {
-      color: var(--danger);
-    }
+    .warning { color: var(--warn); }
+    .error { color: var(--danger); }
 
     #qr {
       margin-top: 12px;
@@ -166,7 +142,7 @@
       left: 50%;
       transform: translateX(-50%);
       background: var(--toast);
-      color: #ffffff;
+      color: #fff;
       padding: 10px 14px;
       border-radius: 8px;
       opacity: 0;
@@ -174,9 +150,7 @@
       transition: opacity 0.3s;
     }
 
-    .toast.show {
-      opacity: 0.9;
-    }
+    .toast.show { opacity: 0.9; }
   </style>
 </head>
 
@@ -192,7 +166,8 @@
   </header>
 
   <div class="card">
-    <input id="netInput" type="number" />
+    <input id="receiveInput" type="number" />
+    <div class="hint" id="hint"></div>
   </div>
 
   <div class="card result" id="result"></div>
@@ -213,9 +188,10 @@
 const dict = {
   en: {
     title: "InstaFees",
-    input: "Amount to receive",
-    send: "Amount to send",
-    fee: "Fees",
+    input: "Amount you want to receive",
+    hint: "You enter the amount that should reach the receiver. We calculate how much you need to send after fees.",
+    send: "You need to send",
+    fee: "Instapay fees",
     transfers: "Transfers",
     single: "Single transfer is enough",
     split: "Will be split into",
@@ -231,8 +207,9 @@ const dict = {
   ar: {
     title: "حاسبة رسوم إنستاباي",
     input: "المبلغ المطلوب وصوله",
+    hint: "اكتب المبلغ الذي تريد أن يصل للمستلم، وسيتم حساب المبلغ الذي يجب إرساله بعد خصم رسوم إنستاباي.",
     send: "المبلغ المطلوب إرساله",
-    fee: "الرسوم",
+    fee: "رسوم إنستاباي",
     transfers: "عدد التحويلات",
     single: "تحويلة واحدة تكفي",
     split: "سيتم تقسيمه إلى",
@@ -250,21 +227,23 @@ const dict = {
 let lang = "ar";
 let isDecoding = false;
 
-const netInput = document.getElementById("netInput");
+const receiveInput = document.getElementById("receiveInput");
 const result = document.getElementById("result");
 const title = document.getElementById("title");
+const hint = document.getElementById("hint");
 const qr = document.getElementById("qr");
 const toast = document.getElementById("toast");
 const shareBtn = document.getElementById("shareBtn");
 const qrBtn = document.getElementById("qrBtn");
 const clearBtn = document.getElementById("clearBtn");
 
-function t(k) { return dict[lang][k]; }
+function t(k){ return dict[lang][k]; }
 
-function applyLang() {
+function applyLang(){
   document.body.dir = lang === "ar" ? "rtl" : "ltr";
   title.textContent = t("title");
-  netInput.placeholder = t("input");
+  receiveInput.placeholder = t("input");
+  hint.textContent = t("hint");
   shareBtn.textContent = t("share");
   qrBtn.textContent = t("qr");
   clearBtn.textContent = t("clear");
@@ -272,33 +251,33 @@ function applyLang() {
 }
 
 /* ================= Dark Mode ================= */
-function toggleDark() {
+function toggleDark(){
   document.body.classList.toggle("dark");
   localStorage.setItem("dark", document.body.classList.contains("dark"));
 }
-if (localStorage.getItem("dark") === "true") toggleDark();
+if(localStorage.getItem("dark") === "true") toggleDark();
 
 /* ================= Language ================= */
-function toggleLang() {
+function toggleLang(){
   lang = lang === "ar" ? "en" : "ar";
   applyLang();
   encodeState();
 }
 
 /* ================= URL State ================= */
-function encodeState() {
-  if (isDecoding || !netInput.value) return;
-  const state = { v: 1, net: netInput.value, lang };
+function encodeState(){
+  if(isDecoding || !receiveInput.value) return;
+  const state = { v:1, receive: receiveInput.value, lang };
   location.hash = "data=" + btoa(unescape(encodeURIComponent(JSON.stringify(state))));
 }
 
-function decodeState() {
-  if (!location.hash.startsWith("#data=")) return;
+function decodeState(){
+  if(!location.hash.startsWith("#data=")) return;
   isDecoding = true;
   try {
     const s = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));
-    if (s.net) netInput.value = s.net;
-    if (s.lang) lang = s.lang;
+    if(s.receive) receiveInput.value = s.receive;
+    if(s.lang) lang = s.lang;
   } catch {}
   isDecoding = false;
 }
@@ -306,49 +285,54 @@ decodeState();
 applyLang();
 
 /* ================= Toast ================= */
-function showToast(msg) {
+function showToast(msg){
   toast.textContent = msg;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
 /* ================= Core Logic ================= */
-netInput.addEventListener("input", () => {
+receiveInput.addEventListener("input", () => {
   calc();
   encodeState();
 });
 
-function calc() {
-  const net = parseFloat(netInput.value);
-  if (!net || net <= 0) {
+function round2(n){
+  return Math.floor(n * 100) / 100;
+}
+
+function calc(){
+  const receive = parseFloat(receiveInput.value);
+  if(!receive || receive <= 0){
     result.innerHTML = "";
     return;
   }
 
-  let gross, fee;
+  let send, fee;
 
-  if (net <= 499.5) {
+  if(receive <= 499.5){
     fee = 0.5;
-    gross = net + fee;
-  } else if (net <= 19980) {
-    gross = net / 0.999;
-    fee = gross - net;
+    send = receive - fee;
+  } else if(receive <= 19980){
+    send = receive / 0.999;
+    send = round2(send);
+    fee = receive - send;
   } else {
     fee = 20;
-    gross = net + fee;
+    send = receive - fee;
   }
 
-  gross = +gross.toFixed(2);
-  fee = +fee.toFixed(2);
+  send = round2(send);
+  fee = round2(Math.abs(fee));
 
-  const transfers = Math.ceil(gross / 70000);
-  const perTransfer = +(gross / transfers).toFixed(2);
+  const transfers = Math.ceil(send / 70000);
+  const perTransfer = round2(send / transfers);
 
-  const dayWarn = gross > 120000;
-  const monthWarn = gross > 400000;
+  const dayWarn = send > 120000;
+  const monthWarn = send > 400000;
 
   result.innerHTML = `
-    <p><strong>${t("send")}:</strong> ${gross}</p>
+    <p><strong>${t("send")}:</strong> ${send}</p>
     <p><strong>${t("fee")}:</strong> ${fee}</p>
     <p><strong>${t("transfers")}:</strong>
       ${transfers === 1 ? t("single") : `${t("split")} ${transfers}`}
@@ -360,19 +344,19 @@ function calc() {
 }
 
 /* ================= Actions ================= */
-function clearAll() {
-  netInput.value = "";
+function clearAll(){
+  receiveInput.value = "";
   result.innerHTML = "";
   qr.innerHTML = "";
   history.replaceState(null, "", location.pathname);
 }
 
-function copyLink() {
+function copyLink(){
   navigator.clipboard.writeText(location.href);
   showToast(t("copied"));
 }
 
-function generateQR() {
+function generateQR(){
   qr.innerHTML = `
     <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(location.href)}">
     <p>${t("scan")}</p>
