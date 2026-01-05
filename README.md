@@ -29,7 +29,7 @@ The app automatically:
 - Warns when multiple accounts are required
 
 ## 🚀 Usage
-1. Enter the amount you want to **receive**
+1. Enter the amount you want to **be deducted**
 2. Instantly see:
    - Amount to send
    - Fees
