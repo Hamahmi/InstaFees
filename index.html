@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <!-- ================= BASIC META ================= -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Instapay Fees Calculator Egypt | InstaFees</title>
+
+  <meta name="description"
+        content="Instapay fees calculator for Egypt. Calculate Instapay transfer fees, amount to send, limits per transfer, daily and monthly Instapay limits. Arabic & English supported." />
+
+  <meta name="keywords"
+        content="instapay fees, instapay fees calculator, instapay egypt fees, instapay transfer fees, instapay limits, instapay calculator egypt, رسوم انستاباي, حاسبة انستاباي" />
+
+  <meta name="author" content="Hamahmi" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- ================= CANONICAL ================= -->
+  <link rel="canonical" href="https://hamahmi.github.io/InstaFees/" />
+
+  <!-- ================= OPEN GRAPH ================= -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Instapay Fees Calculator Egypt | InstaFees" />
+  <meta property="og:description"
+        content="Calculate Instapay fees and exact amount to send including transfer, daily and monthly limits." />
+  <meta property="og:url" content="https://hamahmi.github.io/InstaFees/" />
+  <meta property="og:image" content="https://hamahmi.github.io/InstaFees/og.png" />
+
+  <!-- ================= TWITTER ================= -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Instapay Fees Calculator Egypt" />
+  <meta name="twitter:description"
+        content="Smart Instapay fees calculator with limits and transfer splitting." />
+  <meta name="twitter:image" content="https://hamahmi.github.io/InstaFees/og.png" />
+
+  <!-- ================= SCHEMA ================= -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Instapay Fees Calculator",
+    "url": "https://hamahmi.github.io/InstaFees/",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "All",
+    "description": "Instapay fees calculator for Egypt with transfer limits, daily and monthly warnings.",
+    "inLanguage": ["ar", "en"]
+  }
+  </script>
+
+  <!-- ================= STYLES ================= -->
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #111111;
+      --accent: #2563eb;
+      --border: #dddddd;
+      --danger: #dc2626;
+      --warn: #f59e0b;
+      --toast: #111111;
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e5e7eb;
+      --accent: #60a5fa;
+      --border: #334155;
+      --toast: #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body[dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    button {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .result p {
+      margin: 6px 0;
+    }
+
+    .warning {
+      color: var(--warn);
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    #qr {
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--toast);
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .toast.show {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <header>
+    <h1 onclick="clearAll()">💸 <span id="title"></span></h1>
+    <div>
+      <button class="secondary" onclick="toggleLang()">🌐</button>
+      <button class="secondary" onclick="toggleDark()">🌙</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <input id="netInput" type="number" />
+  </div>
+
+  <div class="card result" id="result"></div>
+
+  <div class="card">
+    <button class="secondary" onclick="copyLink()" id="shareBtn"></button>
+    <button class="secondary" onclick="generateQR()" id="qrBtn"></button>
+    <button class="danger" onclick="clearAll()" id="clearBtn"></button>
+    <div id="qr"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= i18n ================= */
+const dict = {
+  en: {
+    title: "InstaFees",
+    input: "Amount to receive",
+    send: "Amount to send",
+    fee: "Fees",
+    transfers: "Transfers",
+    single: "Single transfer is enough",
+    split: "Will be split into",
+    perTransfer: "Per transfer",
+    dayLimit: "Exceeds daily Instapay limit (120,000).",
+    monthLimit: "Exceeds monthly Instapay limit (400,000).",
+    share: "Share",
+    qr: "QR",
+    clear: "Clear",
+    copied: "Link copied",
+    scan: "Scan to open"
+  },
+  ar: {
+    title: "حاسبة رسوم إنستاباي",
+    input: "المبلغ المطلوب وصوله",
+    send: "المبلغ المطلوب إرساله",
+    fee: "الرسوم",
+    transfers: "عدد التحويلات",
+    single: "تحويلة واحدة تكفي",
+    split: "سيتم تقسيمه إلى",
+    perTransfer: "قيمة كل تحويلة",
+    dayLimit: "تخطى حد إنستاباي اليومي (120,000).",
+    monthLimit: "تخطى حد إنستاباي الشهري (400,000).",
+    share: "مشاركة",
+    qr: "رمز QR",
+    clear: "مسح",
+    copied: "تم نسخ الرابط",
+    scan: "امسح لفتح الرابط"
+  }
+};
+
+let lang = "ar";
+let isDecoding = false;
+
+const netInput = document.getElementById("netInput");
+const result = document.getElementById("result");
+const title = document.getElementById("title");
+const qr = document.getElementById("qr");
+const toast = document.getElementById("toast");
+const shareBtn = document.getElementById("shareBtn");
+const qrBtn = document.getElementById("qrBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+function t(k) { return dict[lang][k]; }
+
+function applyLang() {
+  document.body.dir = lang === "ar" ? "rtl" : "ltr";
+  title.textContent = t("title");
+  netInput.placeholder = t("input");
+  shareBtn.textContent = t("share");
+  qrBtn.textContent = t("qr");
+  clearBtn.textContent = t("clear");
+  calc();
+}
+
+/* ================= Dark Mode ================= */
+function toggleDark() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("dark", document.body.classList.contains("dark"));
+}
+if (localStorage.getItem("dark") === "true") toggleDark();
+
+/* ================= Language ================= */
+function toggleLang() {
+  lang = lang === "ar" ? "en" : "ar";
+  applyLang();
+  encodeState();
+}
+
+/* ================= URL State ================= */
+function encodeState() {
+  if (isDecoding || !netInput.value) return;
+  const state = { v: 1, net: netInput.value, lang };
+  location.hash = "data=" + btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+}
+
+function decodeState() {
+  if (!location.hash.startsWith("#data=")) return;
+  isDecoding = true;
+  try {
+    const s = JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(6)))));
+    if (s.net) netInput.value = s.net;
+    if (s.lang) lang = s.lang;
+  } catch {}
+  isDecoding = false;
+}
+decodeState();
+applyLang();
+
+/* ================= Toast ================= */
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
+
+/* ================= Core Logic ================= */
+netInput.addEventListener("input", () => {
+  calc();
+  encodeState();
+});
+
+function calc() {
+  const net = parseFloat(netInput.value);
+  if (!net || net <= 0) {
+    result.innerHTML = "";
+    return;
+  }
+
+  let gross, fee;
+
+  if (net <= 499.5) {
+    fee = 0.5;
+    gross = net + fee;
+  } else if (net <= 19980) {
+    gross = net / 0.999;
+    fee = gross - net;
+  } else {
+    fee = 20;
+    gross = net + fee;
+  }
+
+  gross = +gross.toFixed(2);
+  fee = +fee.toFixed(2);
+
+  const transfers = Math.ceil(gross / 70000);
+  const perTransfer = +(gross / transfers).toFixed(2);
+
+  const dayWarn = gross > 120000;
+  const monthWarn = gross > 400000;
+
+  result.innerHTML = `
+    <p><strong>${t("send")}:</strong> ${gross}</p>
+    <p><strong>${t("fee")}:</strong> ${fee}</p>
+    <p><strong>${t("transfers")}:</strong>
+      ${transfers === 1 ? t("single") : `${t("split")} ${transfers}`}
+    </p>
+    ${transfers > 1 ? `<p><strong>${t("perTransfer")}:</strong> ${perTransfer}</p>` : ""}
+    ${dayWarn ? `<p class="warning">⚠️ ${t("dayLimit")}</p>` : ""}
+    ${monthWarn ? `<p class="error">❌ ${t("monthLimit")}</p>` : ""}
+  `;
+}
+
+/* ================= Actions ================= */
+function clearAll() {
+  netInput.value = "";
+  result.innerHTML = "";
+  qr.innerHTML = "";
+  history.replaceState(null, "", location.pathname);
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(location.href);
+  showToast(t("copied"));
+}
+
+function generateQR() {
+  qr.innerHTML = `
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(location.href)}">
+    <p>${t("scan")}</p>
+  `;
+}
+</script>
+</body>
+</html>
