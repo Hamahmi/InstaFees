@@ -1,209 +1,104 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <!-- ================= BASIC ================= -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <title>InstaFees – Instapay Fees Calculator</title>
-  <meta name="description" content="Instapay fees calculator Egypt. Enter the exact amount you want deducted and get how much to send. Arabic & English supported." />
-  <meta name="keywords" content="instapay fees, instapay fees calculator, instapay egypt, رسوم انستاباي, حاسبة رسوم انستاباي" />
+  <meta name="description" content="Instapay fees calculator Egypt with automatic split logic for transfer limits. Arabic & English supported." />
+  <meta name="keywords" content="instapay fees, instapay limits, instapay fees calculator, instapay egypt" />
   <meta name="author" content="Hamahmi" />
   <link rel="canonical" href="https://hamahmi.github.io/InstaFees/" />
 
-  <!-- OpenGraph -->
-  <meta property="og:title" content="InstaFees – Instapay Fees Calculator" />
-  <meta property="og:description" content="Calculate how much to send so the exact amount is deducted from your Instapay account." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://hamahmi.github.io/InstaFees/" />
-
-  <!-- ================= STYLES ================= -->
   <style>
     :root {
-      --bg:#f5f5f5;
-      --card:#ffffff;
-      --text:#111111;
-      --accent:#2563eb;
-      --border:#dddddd;
-      --danger:#dc2626;
-      --toast:#111111;
+      --bg:#f5f5f5; --card:#fff; --text:#111;
+      --accent:#2563eb; --border:#ddd;
+      --danger:#dc2626; --warn:#f59e0b; --toast:#111;
     }
-
     body.dark {
-      --bg:#0f172a;
-      --card:#1e293b;
-      --text:#e5e7eb;
-      --accent:#60a5fa;
-      --border:#334155;
-      --toast:#000000;
+      --bg:#0f172a; --card:#1e293b; --text:#e5e7eb;
+      --accent:#60a5fa; --border:#334155; --toast:#000;
     }
-
-    * { box-sizing: border-box; }
-
+    * { box-sizing:border-box; }
     body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      margin:0; font-family:system-ui,sans-serif;
+      background:var(--bg); color:var(--text);
     }
-
-    body[dir="rtl"] {
-      direction: rtl;
-      text-align: right;
-    }
-
-    .container {
-      max-width: 720px;
-      margin: auto;
-      padding: 20px;
-    }
-
+    body[dir="rtl"] { direction:rtl; text-align:right; }
+    .container { max-width:720px; margin:auto; padding:20px; }
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      display:flex; justify-content:space-between; align-items:center;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
-
+    h1 { margin:0; font-size:1.4rem; cursor:pointer; }
     button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: .9rem;
+      background:var(--accent); color:#fff;
+      border:none; padding:8px 12px; border-radius:6px;
+      cursor:pointer; font-size:.9rem;
     }
-
     button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
+      background:transparent; color:var(--accent);
+      border:1px solid var(--accent);
     }
-
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 16px;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:12px; padding:16px; margin-top:16px;
     }
-
     input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      font-size: 1rem;
+      width:100%; padding:10px; font-size:1rem;
+      border-radius:6px; border:1px solid var(--border);
+      background:transparent; color:var(--text);
     }
-
-    .result {
-      margin-top: 12px;
-      font-size: 1.05rem;
+    .result { margin-top:12px; font-size:1.05rem; }
+    .split {
+      margin-top:12px; padding:12px;
+      border:1px dashed var(--border); border-radius:8px;
     }
-
+    .split-item {
+      display:flex; justify-content:space-between;
+      align-items:center; margin-top:6px;
+    }
+    .warn { color:var(--warn); font-size:.9rem; margin-top:8px; }
     .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+      display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;
     }
-
-    #qr {
-      text-align: center;
-      margin-top: 12px;
-    }
-
+    #qr { text-align:center; margin-top:12px; }
     .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--toast);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .3s;
+      position:fixed; bottom:20px; left:50%;
+      transform:translateX(-50%);
+      background:var(--toast); color:#fff;
+      padding:10px 14px; border-radius:8px;
+      opacity:0; pointer-events:none; transition:.3s;
     }
-
-    .toast.show {
-      opacity: .9;
-    }
-
-    /* Modal */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal.show {
-      display: flex;
-    }
-
-    .modal-content {
-      background: var(--card);
-      color: var(--text);
-      max-width: 500px;
-      width: 100%;
-      border-radius: 12px;
-      padding: 16px;
-      border: 1px solid var(--border);
-    }
+    .toast.show { opacity:.9; }
   </style>
 </head>
 
 <body>
 <div class="container">
 
-  <header>
-    <h1 onclick="clearAll()">💸 <span id="title"></span></h1>
-    <div>
-      <button class="secondary" onclick="toggleLang()">🌐</button>
-      <button class="secondary" onclick="toggleDark()">🌙</button>
-    </div>
-  </header>
-
-  <div class="card">
-    <p id="desc"></p>
-    <input id="amount" type="number" step="0.01" />
-    <div class="result" id="output"></div>
-
-    <div class="actions">
-      <button class="secondary" onclick="copyAmount()" id="copyBtn"></button>
-      <button class="secondary" onclick="showLimits()" id="limitsBtn"></button>
-    </div>
+<header>
+  <h1 onclick="clearAll()">💸 <span id="title"></span></h1>
+  <div>
+    <button class="secondary" onclick="toggleLang()">🌐</button>
+    <button class="secondary" onclick="toggleDark()">🌙</button>
   </div>
+</header>
 
-  <div class="card">
+<div class="card">
+  <p id="desc"></p>
+  <input id="amount" type="number" step="0.01" />
+  <div class="result" id="output"></div>
+  <div id="splits"></div>
+
+  <div class="actions">
+    <button class="secondary" onclick="copyMain()" id="copyBtn"></button>
     <button class="secondary" onclick="copyLink()">🔗 Share</button>
     <button class="secondary" onclick="generateQR()">📱 QR</button>
   </div>
-
-  <div id="qr"></div>
 </div>
 
-<!-- Limits Modal -->
-<div class="modal" id="limitsModal">
-  <div class="modal-content">
-    <h3 id="limitsTitle"></h3>
-    <p id="limitsText"></p>
-    <button onclick="hideLimits()">OK</button>
-  </div>
+<div id="qr"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -211,147 +106,124 @@
 <script>
 /* ================= i18n ================= */
 const dict = {
-  en: {
-    title: "InstaFees",
-    desc: "Enter the exact amount you want deducted from your account.",
-    input: "Amount to be deducted",
-    send: "You should send",
-    fee: "Instapay fee",
-    copy: "Copy amount",
-    limits: "Limits",
-    copied: "Copied",
-    limitsTitle: "Instapay Limits",
-    limitsText:
-      "Per transfer: 70,000 EGP\nDaily limit: 120,000 EGP\nMonthly limit: 400,000 EGP"
+  en:{
+    title:"InstaFees",
+    desc:"Enter the exact amount you want deducted from your account.",
+    input:"Amount to be deducted",
+    send:"You should send",
+    fee:"Instapay fee",
+    split:"Split transfers",
+    warnDay:"⚠ Daily limit exceeded (120,000 EGP)",
+    warnMonth:"⚠ Monthly limit exceeded (400,000 EGP)",
+    copy:"Copy main amount",
+    copied:"Copied"
   },
-  ar: {
-    title: "إنستا فيز",
-    desc: "ادخل المبلغ اللي عايز يتخصم منك بالظبط.",
-    input: "المبلغ المطلوب خصمه",
-    send: "المبلغ اللي تحطه",
-    fee: "رسوم إنستاباي",
-    copy: "نسخ الرقم",
-    limits: "حدود التحويل",
-    copied: "تم النسخ",
-    limitsTitle: "حدود إنستاباي",
-    limitsText:
-      "التحويل الواحد: 70,000 جنيه\nالحد اليومي: 120,000 جنيه\nالحد الشهري: 400,000 جنيه"
+  ar:{
+    title:"إنستا فيز",
+    desc:"ادخل المبلغ اللي عايز يتخصم منك بالظبط.",
+    input:"المبلغ المطلوب خصمه",
+    send:"المبلغ اللي تحطه",
+    fee:"رسوم إنستاباي",
+    split:"تقسيم التحويل",
+    warnDay:"⚠ تعديت الحد اليومي (120,000 جنيه)",
+    warnMonth:"⚠ تعديت الحد الشهري (400,000 جنيه)",
+    copy:"نسخ المبلغ الأساسي",
+    copied:"تم النسخ"
   }
 };
 
-let lang = "ar";
-const amountInput = document.getElementById("amount");
-const output = document.getElementById("output");
-const toast = document.getElementById("toast");
-const limitsModal = document.getElementById("limitsModal");
-
-let lastSendValue = "";
+let lang="ar";
+const amountInput=document.getElementById("amount");
+const output=document.getElementById("output");
+const splitsDiv=document.getElementById("splits");
+const toast=document.getElementById("toast");
+let mainSend="";
 
 /* ================= Helpers ================= */
-function t(k){ return dict[lang][k]; }
-
-function showToast(msg){
-  toast.textContent = msg;
-  toast.classList.add("show");
+const MAX_SINGLE=70000, MAX_DAY=120000, MAX_MONTH=400000;
+function t(k){return dict[lang][k];}
+function showToast(m){
+  toast.textContent=m; toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"),2000);
 }
-
-/* ================= Logic ================= */
-function feeFor(sent){
-  if (sent <= 500) return 0.5;
-  if (sent <= 20000) return sent * 0.001;
+function feeFor(v){
+  if(v<=500) return 0.5;
+  if(v<=20000) return v*0.001;
   return 20;
 }
 
+/* ================= Logic ================= */
 function calculate(){
-  const deducted = parseFloat(amountInput.value);
-  if (isNaN(deducted) || deducted <= 0){
-    output.innerHTML = "";
-    lastSendValue = "";
-    return;
+  const deducted=parseFloat(amountInput.value);
+  output.innerHTML=""; splitsDiv.innerHTML=""; mainSend="";
+  if(isNaN(deducted)||deducted<=0) return;
+
+  const fee=feeFor(deducted);
+  const send=+(deducted-fee).toFixed(2);
+  mainSend=send.toString();
+
+  output.innerHTML=`<strong>${t("send")}:</strong> ${send}<br>
+                    <strong>${t("fee")}:</strong> ${fee.toFixed(2)}`;
+
+  // Split logic
+  if(send>MAX_SINGLE){
+    let remaining=send;
+    let parts=[];
+    while(remaining>0){
+      const part=Math.min(MAX_SINGLE,remaining);
+      parts.push(+part.toFixed(2));
+      remaining-=part;
+    }
+
+    splitsDiv.innerHTML=`<div class="split"><strong>${t("split")}:</strong></div>`;
+    parts.forEach((p,i)=>{
+      splitsDiv.innerHTML+=`
+        <div class="split-item">
+          <span>#${i+1}: ${p}</span>
+          <button class="secondary" onclick="copyValue('${p}')">Copy</button>
+        </div>`;
+    });
+
+    const total=parts.reduce((s,x)=>s+x,0);
+    if(total>MAX_DAY) splitsDiv.innerHTML+=`<div class="warn">${t("warnDay")}</div>`;
+    if(total>MAX_MONTH) splitsDiv.innerHTML+=`<div class="warn">${t("warnMonth")}</div>`;
   }
-
-  const fee = feeFor(deducted);
-  const send = +(deducted - fee).toFixed(2);
-
-  lastSendValue = send.toString(); // always English digits
-
-  output.innerHTML = `
-    <strong>${t("send")}:</strong> ${send}<br/>
-    <strong>${t("fee")}:</strong> ${fee.toFixed(2)}
-  `;
-
-  encodeState();
 }
 
-amountInput.addEventListener("input", calculate);
-
-/* ================= State ================= */
-function encodeState(){
-  location.hash = "a=" + amountInput.value + "&l=" + lang;
-}
-
-function decodeState(){
-  const p = new URLSearchParams(location.hash.slice(1));
-  if (p.get("a")) amountInput.value = p.get("a");
-  if (p.get("l")) lang = p.get("l");
-}
-decodeState();
+amountInput.addEventListener("input",calculate);
 
 /* ================= UI ================= */
 function applyLang(){
-  document.body.dir = lang === "ar" ? "rtl" : "ltr";
-  title.textContent = t("title");
-  desc.textContent = t("desc");
-  amountInput.placeholder = t("input");
-  copyBtn.textContent = t("copy");
-  limitsBtn.textContent = t("limits");
-  limitsTitle.textContent = t("limitsTitle");
-  limitsText.textContent = t("limitsText");
+  document.body.dir=lang==="ar"?"rtl":"ltr";
+  title.textContent=t("title");
+  desc.textContent=t("desc");
+  amountInput.placeholder=t("input");
+  copyBtn.textContent=t("copy");
   calculate();
 }
 applyLang();
 
-function toggleLang(){
-  lang = lang === "ar" ? "en" : "ar";
-  applyLang();
-}
-
-function toggleDark(){
-  document.body.classList.toggle("dark");
-}
+function toggleLang(){lang=lang==="ar"?"en":"ar";applyLang();}
+function toggleDark(){document.body.classList.toggle("dark");}
 
 /* ================= Actions ================= */
-function copyAmount(){
-  if (!lastSendValue) return;
-  navigator.clipboard.writeText(lastSendValue);
+function copyValue(v){
+  navigator.clipboard.writeText(v);
   showToast(t("copied"));
 }
-
+function copyMain(){
+  if(mainSend) copyValue(mainSend);
+}
 function copyLink(){
   navigator.clipboard.writeText(location.href);
   showToast(t("copied"));
 }
-
 function generateQR(){
-  qr.innerHTML = `
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(location.href)}">
-  `;
+  qr.innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(location.href)}">`;
 }
-
-function showLimits(){
-  limitsModal.classList.add("show");
-}
-
-function hideLimits(){
-  limitsModal.classList.remove("show");
-}
-
 function clearAll(){
   history.replaceState(null,"",location.pathname);
-  amountInput.value = "";
-  output.innerHTML = "";
-  lastSendValue = "";
+  amountInput.value=""; output.innerHTML=""; splitsDiv.innerHTML="";
 }
 </script>
 </body>
